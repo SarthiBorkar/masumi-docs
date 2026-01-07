@@ -1,14 +1,16 @@
 # Multi-stage build for optimized production image
+# Version: 2.0 - Fixed fumadocs-mdx postinstall issue
 
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package files
+# Copy package files and fumadocs config
 COPY package.json package-lock.json* ./
-# Skip postinstall during dependency installation (fumadocs-mdx needs source files)
-RUN npm ci --ignore-scripts
+COPY source.config.ts ./
+# Now npm ci can run postinstall successfully (fumadocs-mdx has its config)
+RUN npm ci
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
@@ -22,9 +24,6 @@ COPY . .
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-
-# Run fumadocs-mdx first (since we skipped postinstall)
-RUN npx fumadocs-mdx
 
 # Run the full build process
 # This includes: fumadocs-mdx, generate-openapi, fetch-readme, and next build
