@@ -22,11 +22,11 @@ This guide explains how to deploy your Next.js app to Digital Ocean using GitHub
 
 ## Setup Steps
 
-### 1. Create Digital Ocean Container Registry
+### 1. Create Digital Ocean Container Registry ✅ COMPLETED
 
-1. Go to https://cloud.digitalocean.com/registry
-2. Click "Create" and choose a name (e.g., `masumi-docs`)
-3. Save the registry name for later
+Registry created: `test-masumi-docs` in `fra1` (Frankfurt)
+
+**Note:** Container Registry is where Docker images are stored. This is also your app name, which is fine!
 
 ### 2. Create Digital Ocean App (if not already created)
 
@@ -56,7 +56,7 @@ Add these secrets:
 | Secret Name | Value | Where to Find |
 |-------------|-------|---------------|
 | `DO_API_TOKEN` | Your DO API token | From step 3 |
-| `DO_REGISTRY_NAME` | Your registry name | From step 1 (e.g., `masumi-docs`) |
+| `DO_REGISTRY_NAME` | Your registry name | From step 1: `test-masumi-docs` |
 | `DO_APP_ID` | Your app ID | From step 2 (from URL) |
 
 **How to add secrets:**
@@ -74,14 +74,20 @@ Your app needs to pull from the container registry:
 2. Go to Settings → App Spec
 3. Update the image to point to your registry:
    ```yaml
-   name: masumi-docs
+   name: test-masumi-docs
+   region: fra1
    services:
    - name: web
      image:
        registry_type: DOCR
-       repository: masumi-docs
+       registry: test-masumi-docs
+       repository: test-masumi-docs
        tag: latest
      http_port: 3000
+     instance_count: 1
+     instance_size_slug: basic-xxs
+     routes:
+     - path: /
    ```
 4. Save
 

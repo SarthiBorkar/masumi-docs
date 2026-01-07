@@ -3,12 +3,13 @@ name: Build and Deploy to Digital Ocean
 on:
   push:
     branches:
-      - main
+      - github-actions-docker-deploy  # Test from this branch first
+      # - main  # Uncomment this later when ready for production
   workflow_dispatch: # Allow manual triggers
 
 env:
   REGISTRY: registry.digitalocean.com
-  IMAGE_NAME: masumi-docs
+  IMAGE_NAME: test-masumi-docs
 
 jobs:
   build-and-deploy:
