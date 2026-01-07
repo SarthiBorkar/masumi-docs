@@ -1,15 +1,22 @@
 import { NextResponse } from 'next/server';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile } from 'fs/promises';
 import { join } from 'path';
-import { source } from '@/lib/source';
-import { getLLMText } from '@/lib/get-llm-text';
+
+// Mark this route as dynamic to prevent Next.js from analyzing it during build
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 // In-memory cache for the generated content (persists across requests)
 let cachedContent: string | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_TTL = 1000 * 60 * 60; // 1 hour
 
+// Use dynamic imports to prevent Next.js from evaluating these during build
 async function generateLLMsTxtContent(): Promise<string> {
+  // Dynamic imports - only loaded at runtime, not during build
+  const { source } = await import('@/lib/source');
+  const { getLLMText } = await import('@/lib/get-llm-text');
+  
   const pages = source.getPages();
   const MAX_CONCURRENT = 10;
   
@@ -86,10 +93,8 @@ export async function GET() {
     cachedContent = content;
     cacheTimestamp = now;
     
-    // Optionally write to disk for persistence (non-blocking)
-    writeFile(filePath, content, 'utf-8').catch((err) => {
-      console.warn('Failed to write llms.txt to disk (non-critical):', err);
-    });
+    // Note: We don't write to disk to avoid deployment bundle size issues
+    // The in-memory cache is sufficient for runtime performance
     
     return new NextResponse(content, {
       status: 200,
