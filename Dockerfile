@@ -7,7 +7,8 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN npm ci
+# Skip postinstall during dependency installation (fumadocs-mdx needs source files)
+RUN npm ci --ignore-scripts
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
@@ -21,6 +22,9 @@ COPY . .
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+
+# Run fumadocs-mdx first (since we skipped postinstall)
+RUN npx fumadocs-mdx
 
 # Run the full build process
 # This includes: fumadocs-mdx, generate-openapi, fetch-readme, and next build
