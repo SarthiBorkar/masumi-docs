@@ -8,7 +8,7 @@ import { readFile } from 'fs/promises';
 import { llmTextCache, fileReadCache } from './cache';
 
 // Shared remark processor instance (reusable, more memory efficient)
-let sharedProcessor: ReturnType<typeof remark> | null = null;
+let sharedProcessor: any = null;
 
 function getSharedProcessor() {
   if (!sharedProcessor) {
